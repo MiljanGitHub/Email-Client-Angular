@@ -1,0 +1,280 @@
+<mat-tab-group dynamicHeight>
+
+    <!-- Folders and Accounts start here -->
+    <mat-tab label="Folders and Accounts">
+
+        <!-- Select account dropdown starts here -->
+        <mat-form-field appearance="fill">
+            <mat-label>Select an account</mat-label>
+            <mat-select disableRipple [(value)]="currentAccount" (selectionChange)="onClickedCurrentAccount()">
+                <mat-option *ngFor="let account of accounts" [value]="account">{{account.address}}</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <!-- Select account dropdown ends here -->
+
+        <!-- Folders tree structure starts here -->
+        <kendo-treeview
+            id="idt"
+            [nodes]="folders"
+            textField="folderName"
+            [hasChildren]="hasChildren"
+            [children]="fetchChildren" 
+            kendoTreeViewExpandable
+            [isSelected]="isFolderSelected"
+            (selectionChange)="handleSelection($event)"
+            kendoTreeViewSelectable
+            [selectBy]="'folderName'">
+        </kendo-treeview>
+        <!-- Folders tree structure ends here -->
+
+        <!-- Delete button for Folder starts here -->
+        <button  mat-button color="primary" [disabled]="currentFolder == null || currentFolder == undefined" (click)="deleteCurrentlySelectedFolder()">Delete folder</button>
+        <!-- Delete button for Folder ends here -->
+
+        <!-- Form for Account creation starts here -->
+        <div>
+            <form [formGroup]="newAccountForm" (ngSubmit)="submitForm()" class="example-form">
+                <mat-form-field class="example-full-width" appearance="fill">
+                  <mat-label>Display name</mat-label>
+                  <input type="text" formControlName="displayName" matInput placeholder="My account name" value="">
+                </mat-form-field>
+              
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>Username</mat-label>
+                    <input formControlName="username" matInput placeholder="my.email@gmail.com" value="">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>Password</mat-label>
+                    <input type="password" formControlName="password" matInput placeholder="super secrete password" value="">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>SMPT address</mat-label>
+                    <input type="text" formControlName="smtpAddress" matInput placeholder="smtp.gmail.com" value="">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>SMTP port</mat-label>
+                    <input type="number" formControlName="smtpPort" matInput placeholder="123" value="">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>IMAP address</mat-label>
+                    <input type="text" formControlName="imapAddress" matInput placeholder="imap.gmail.com" value="">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>IMAP port</mat-label>
+                    <input type="number" formControlName="imapPort" matInput placeholder="993" value="">
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Select me</mat-label>
+                    <mat-select formControlName="incomingType">
+                      <mat-option value="option">IMAP</mat-option>
+                      <mat-option value="option">POP3</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                
+                <button  mat-button color="primary" type="submit">Create new account</button>
+
+              </form> 
+        </div>
+        <!-- Form for Account creation ends here -->
+    </mat-tab>
+    <!-- Folders and Accounts ends here -->
+
+    <!-- Messages start here -->
+    <mat-tab label="Messages">
+ 
+        <!-- Messages table starts here -->
+        <table mat-table [dataSource]="messages" class="mat-elevation-z8">
+            <!-- TODO -> display table if Account and Folder are not NULL -->
+
+            <!--- Note that these columns can be defined in any order.
+                  The actual rendered columns are set as a property on the row definition" -->
+
+            <!-- Subject Column -->
+            <ng-container matColumnDef="Subject">
+              <th mat-header-cell *matHeaderCellDef> Subject </th>
+              <td mat-cell *matCellDef="let message"> {{message.subject}} </td>
+            </ng-container>
+          
+            <!-- From Column -->
+            <ng-container matColumnDef="From">
+              <th mat-header-cell *matHeaderCellDef> From </th>
+              <td mat-cell *matCellDef="let message"> {{message.from}}</td>
+            </ng-container>
+
+             <!-- To Column -->
+            <ng-container matColumnDef="To">
+              <th mat-header-cell *matHeaderCellDef> To </th>
+              <td mat-cell *matCellDef="let message"> {{message.to | emailAddressPipe}} </td>
+            </ng-container>
+
+            <!-- Content Column -->
+            <ng-container matColumnDef="Content">
+                <th mat-header-cell *matHeaderCellDef> Content </th>
+                <td mat-cell *matCellDef="let message"> {{message.content}} </td>
+            </ng-container>
+            
+            <!-- Attachment Column -->
+            <ng-container matColumnDef="Attachment">
+                <th mat-header-cell *matHeaderCellDef> Attachment </th>
+                <td mat-cell *matCellDef="let message"> {{message.attachments.length}} </td>
+            </ng-container>
+
+            <!-- Read Column -->
+            <ng-container matColumnDef="Read">
+                <th mat-header-cell *matHeaderCellDef> Read </th>
+                <td mat-cell *matCellDef="let message"> {{message.read}} </td>
+            </ng-container>
+
+            <!-- Received Column -->
+            <ng-container matColumnDef="Received">
+                <th mat-header-cell *matHeaderCellDef> Received </th>
+                <td mat-cell *matCellDef="let message"> {{message.received | datePipe}} </td>
+            </ng-container>
+
+            <!-- Sent Column -->
+            <ng-container matColumnDef="Sent">
+                <th mat-header-cell *matHeaderCellDef> Sent </th>
+                <td mat-cell *matCellDef="let message"> {{message.sent | datePipe}} </td>
+            </ng-container>
+          
+          
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="onRowClick(row)" [ngClass]="{ 'selected': row === selectedMessage }"
+            ></tr>
+          </table>
+        <!-- Messages table ends here -->
+        
+    </mat-tab>
+    <!-- Messages ends here -->
+
+    <!-- Message start here -->
+    <mat-tab label="Message">
+        <ng-container *ngIf="currentAccount != null && currentFolder != null && selectedMessage != null">
+
+            <form [formGroup]="messageViewForm" class="example-form">
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                  <mat-label>Subject</mat-label>
+                  <input readonly type="text" formControlName="messageViewSubject" matInput value="selectedMessage.subject">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>To</mat-label>
+                    <input readonly type="text" formControlName="messageViewTo" matInput value="selectedMessage.to">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>From</mat-label>
+                    <input readonly type="text" formControlName="messageViewFrom" matInput value="selectedMessage.from">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>Cc</mat-label>
+                    <input readonly type="text" formControlName="messageViewCc" matInput value="selectedMessage.cc">
+                </mat-form-field>
+
+                <mat-form-field class="example-full-width" appearance="fill">
+                    <mat-label>Bcc</mat-label>
+                    <input readonly type="text" formControlName="messageViewBcc" matInput value="selectedMessage.bcc">
+                </mat-form-field>
+
+                <mat-form-field appearance="fill">
+                    <mat-label>Content</mat-label>
+                    <textarea readonly type="text" formControlName="messageViewContent" matInput value="selectedMessage.content"></textarea>
+                </mat-form-field>
+            
+                <mat-chip-list aria-label="Fish selection">
+                    <mat-chip *ngFor="let attachment of selectedMessage.attachments"><a [attr.href]="'//' + attachment.url" target="_blank">{{attachment.title}}</a></mat-chip>        
+                </mat-chip-list>
+            
+            </form> 
+
+            <button mat-button color="primary" (click)="onClickDelete()">Delete message</button>
+
+        </ng-container>
+    </mat-tab>
+    <!-- Message ends here -->
+    
+    <!-- New Message start here -->
+    <mat-tab label="New Message">
+        
+        <form [formGroup]="messageNewForm" class="example-form">
+            <!-- formControlName="incomingType" -->
+            <mat-form-field appearance="fill">
+                <mat-label>Select an account</mat-label> 
+                <mat-select  #ref (selectionChange)="onClickedFromAccount(ref.value)">
+                    <mat-option *ngFor="let account of accounts" [value]="account">{{account.address}}</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            
+            <mat-form-field class="example-full-width" appearance="fill">
+              <mat-label>Subject</mat-label>
+              <input type="text" formControlName="messageNewSubject" matInput>
+            </mat-form-field>
+
+            <mat-form-field class="example-chip-list" class="example-full-width" appearance="fill">
+                <mat-label>To:</mat-label>
+                <mat-chip-list #chipListTo aria-label="To address selection">
+                   <mat-chip *ngFor="let toAddress of currentMessage.to" (removed)="removeToAddress(toAddress)" [removable]="removable">
+                    {{toAddress}}
+                    <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                  </mat-chip>
+                  <input placeholder="To" #toAddressInput [formControl]="toAddressCtrl" (matChipInputTokenEnd)="addToAddress($event)" [matChipInputFor]="chipListTo" [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                </mat-chip-list>
+            </mat-form-field>
+
+            <mat-form-field class="example-chip-list" class="example-full-width" appearance="fill">
+                <mat-label>Cc:</mat-label>
+                <mat-chip-list #chipListCc aria-label="Cc address selection">
+                   <mat-chip *ngFor="let ccAddress of currentMessage.cc" (removed)="removeCcAddress(ccAddress)" [removable]="removable">
+                    {{ccAddress}}
+                    <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                  </mat-chip>
+                  <input placeholder="Cc" #ccAddressInput [formControl]="ccAddressCtrl" (matChipInputTokenEnd)="addCcAddress($event)" [matChipInputFor]="chipListCc" [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                </mat-chip-list>
+            </mat-form-field>
+
+            <mat-form-field class="example-chip-list" class="example-full-width" appearance="fill">
+                <mat-label>Bcc:</mat-label>
+                <mat-chip-list #chipListBcc aria-label="Bcc address selection">
+                    <mat-chip *ngFor="let bccAddress of currentMessage.bcc" (removed)="removeBccAddress(bccAddress)" [removable]="removable">
+                    {{bccAddress}}
+                    <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+                  </mat-chip>
+                  <input placeholder="Bcc" #bccAddressInput [formControl]="bccAddressCtrl" (matChipInputTokenEnd)="addBccAddress($event)" [matChipInputFor]="chipListBcc" [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                </mat-chip-list>
+            </mat-form-field>
+
+            <mat-form-field class="example-full-width" appearance="fill">
+                <mat-label>Content</mat-label>
+                <textarea type="text" formControlName="messageNewContent" matInput></textarea>
+            </mat-form-field>
+
+            <!-- TODO: Attachment upload here -->
+            <h1>File upload</h1>
+            <input value="" type="file" name="title" (change)="onFilesSelected($event) " multiple >
+            <!-- <input value="" type="file" name="title" (change)="onFilesSelected($event)"> -->
+            <button mat-button color="primary" (click)="onClicSendMessage()">Send message</button> 
+            
+            <button mat-button color="primary" (click)="onClicSendMessage()">Send message</button>
+        </form>
+        
+
+        <button mat-button color="primary" (click)="onClicDismiss()">Dismiss message</button>
+    </mat-tab>
+    <!-- New Message ends here -->
+
+    <!-- Search start here -->
+    <mat-tab label="Search">
+        
+    </mat-tab>
+    <!-- Search ends here -->
+
+</mat-tab-group>
