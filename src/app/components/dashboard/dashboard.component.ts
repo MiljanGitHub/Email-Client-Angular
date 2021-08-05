@@ -65,11 +65,10 @@ export class DashboardComponent implements OnInit {
     this.accountService.fetchAccounts().subscribe(data => {
       var arr: Account[] = [];
       for (const ac of data['accounts']){
-        var a = new Account(ac['id'], ac['address']);
+        var a = new Account(ac['address'], ac['id']);
         arr.push(a);
       }
       this.accounts = arr;
-      //return arr;
     });
     
     this.newAccountForm = this.fb.group({
@@ -124,12 +123,16 @@ export class DashboardComponent implements OnInit {
 
     
     //TODO -> check if real http post will work to add newly create Account
-    let idAccount = -1;
+    //let idAccount = -1;
     this.accountService.createAccount(accountData).subscribe(data => {
-      idAccount = data['id'];
+      if (data['error'] == false){
+        let idAccount = data['id'];
+        this.accounts.push(new Account(accountData.username, idAccount));
+      } else {
+        alert("greska pri kreiranju Accounta")
+      }
+     
     });
-
-    this.accounts.push(new Account(accountData.username, idAccount));
 
     //to reset the form data, optional
     //this.myForm.reset();
