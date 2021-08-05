@@ -43,35 +43,9 @@ export class MessageService {
     //TODO -> delete request for deleting message on server
   }
 
- 
 
-  public sendNewMessage(newMessage:FormData){ //, headers : {'Content-Type':undefined, 'Accept':'application/json'}
-    var config = {
-      headers : {
-          'Content-Type': undefined
-      }
-
-  }
-    return this.httpClient.post("http://localhost:8080/message/test", newMessage);
-  }
-
-
-  uploadFile(file: File): Observable<any> {
-
-    const formData = new FormData();
-    
-    formData.append('file', file, 'file');
-    const headers = new HttpHeaders({
-      'Content-Type': 'multipart/form-data'
-    });
-    //const options = { headers } : Observable<any>;
-    
-    return this.httpClient.post("http://localhost:8080/message/test", formData);
-      
-    }
-
-    upload(formData: FormData): Observable<any> {
-      return this.httpClient.post<any>(`http://localhost:8080/message/test`, formData, {
+  sendNewMessage(formData: FormData): Observable<any> {
+      return this.httpClient.post<any>(`http://localhost:8080/message/init`, formData, {
         reportProgress: true,
         observe: 'events'
       });

@@ -39,10 +39,11 @@ export class LoginRegisterComponent implements OnInit {
   
   loginOrRegister():void{ //username: string, password: string
     if (this.loginMode){
+      console.log("aaaa")
       this.authenticationService.login(this.user.name, this.user.password).subscribe(
-        (jwt:string) => {
-          if(jwt){
-            this.tokenService.saveToken(jwt);
+        (res) => {
+          if(res['jwt']){
+            this.tokenService.saveToken(res['jwt']);
             this.router.navigate(['dashboard']);
           } else{
             this.wrongUsernameOrPass = true;
@@ -60,8 +61,16 @@ export class LoginRegisterComponent implements OnInit {
         }
       });
     } else{
-      //TODO
-      console.log("register with: " + this.user.name + " " + this.user.password)
+      
+
+      this.authenticationService.register(this.user.name, this.user.password, this.user.firstname, this.user.lastname).subscribe(
+        (res) => {
+          console.log("Registration is: " + res['message'])
+
+        }
+     
+      );
+
     }
 
   }

@@ -60,20 +60,20 @@
                 </mat-form-field>
 
                 <mat-form-field class="example-full-width" appearance="fill">
-                    <mat-label>IMAP address</mat-label>
-                    <input type="text" formControlName="imapAddress" matInput placeholder="imap.gmail.com" value="">
+                    <mat-label>Incoming server address</mat-label>
+                    <input type="text" formControlName="inServerAddress" matInput placeholder="imap.gmail.com" value="">
                 </mat-form-field>
 
                 <mat-form-field class="example-full-width" appearance="fill">
-                    <mat-label>IMAP port</mat-label>
-                    <input type="number" formControlName="imapPort" matInput placeholder="993" value="">
+                    <mat-label>Incoming server port</mat-label>
+                    <input type="number" formControlName="inServerPort" matInput placeholder="993" value="">
                 </mat-form-field>
-
+<!-- (selectionChange)="incomingTypeChange($event)" -->
                 <mat-form-field appearance="fill">
                     <mat-label>Select me</mat-label>
-                    <mat-select formControlName="incomingType">
-                      <mat-option value="option">IMAP</mat-option>
-                      <mat-option value="option">POP3</mat-option>
+                    <mat-select formControlName="incomingType"  (selectionChange)="incomingTypeChange($event)">
+                      <mat-option value="IMAP" >IMAP</mat-option>
+                      <mat-option value="POP3" >POP3</mat-option>
                     </mat-select>
                 </mat-form-field>
                 
@@ -259,14 +259,14 @@
 
             <!-- TODO: Attachment upload here -->
             <h1>File upload</h1>
-            <input value="" type="file" name="title" (change)="onFilesSelected($event) " multiple >
+            <input value="" type="file" name="title" (change)="onFilesSelected($event) " multiple>
             <!-- <input value="" type="file" name="title" (change)="onFilesSelected($event)"> -->
+            <mat-nav-list>
+                <mat-list-item *ngFor="let file of selectedFiles"> {{ file.name }} </mat-list-item>
+             </mat-nav-list>
             <button mat-button color="primary" (click)="onClicSendMessage()">Send message</button> 
             
-            <button mat-button color="primary" (click)="onClicSendMessage()">Send message</button>
         </form>
-        
-
         <button mat-button color="primary" (click)="onClicDismiss()">Dismiss message</button>
     </mat-tab>
     <!-- New Message ends here -->

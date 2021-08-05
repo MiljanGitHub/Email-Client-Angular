@@ -7,53 +7,58 @@ import { catchError, map } from 'rxjs/operators';
 @Injectable()
 export class AuthenticationService {
 
-  private readonly AUTH_API = 'http://localhost:8080/api/auth/';
+  private readonly API = 'http://localhost:8080';
 
   constructor(private http: HttpClient) { }
 
-  login(username: string, password: string): Observable<string>{
+  login(username: string, password: string): Observable<any>{
 
     var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
-    //Simulate the login endpoint
-    console.log("abcdefghjkl")
-    return of("abcdefghjkl");
+    
+    return this.http.post<any>(this.API + '/login', { username : username, password: password }, { headers })
+    .pipe(map((res: any) => {
 
-    //real http request; should be tested
-  //   return this.http.post<string>(this.AUTH_API + 'login', JSON.stringify({ username, password }), { headers })
-  //   .pipe(map((res: any) => {
-      
-  //     let token = res && res['token'];
-  //     if (token) {
-  //       return res['token'];
-  //     } else {
-  //       return '';
-  //     }
+      let token = res && res['jwt'];
+      if (token) {
+        return res;
+      } else {
+        return '';
+      }
 
-  //   }), catchError(error => {
-  //     if (error.status === 400) {
-  //       return Observable.throw('Illegal login');
-  //     }
-  //     else {
-  //       return Observable.throw(error.json().error || 'Server error');
-  //     }
-  // }));
+    }), catchError(error => {
+      if (error.status === 400) {
+        return Observable.throw('Illegal login');
+      }
+      else {
+        return Observable.throw(error.json().error || 'Server error');
+      }
+    }));
 
       
   }
 
-  private handleError<T>(operation = 'operation', result?: T) {
-    return (error: any): Observable<T> => {
 
-      // TODO: send the error to remote logging infrastructure
-      console.error(error); // log to console instead
+  register(username: string, password: string, firstname: string, lastname: string) : Observable<any> {
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post<any>(this.API + "/register", { username : username, password : password, firstName: firstname, lastName: lastname}, {headers})
+    .pipe(map((res: any) => {
 
-      //// TODO: better job of transforming error for user consumption
-      //this.log(`${operation} failed: ${error.message}`);
+      return res;
 
-      // Let the app keep running by returning an empty result.
-      return of(result as T);
-    };
+
+    }), catchError(error => {
+      console.log("register response: " + error);
+      if (error.status === 400) {
+        return Observable.throw('Illegal login');
+      }
+      else {
+        return Observable.throw(error.json().error || 'Server error');
+      }
+    
+    }));
+
   }
+
 
 
 }

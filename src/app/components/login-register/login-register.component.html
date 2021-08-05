@@ -28,6 +28,15 @@
 
 <ng-template #elseBlock>
     <ng-container >
+      <mat-form-field appearance="fill" floatLabel="always">
+        <mat-label>Enter your first name</mat-label>
+        <input matInput type="text" name="name" [(ngModel)]="user.firstname" class="example-right-align" placeholder=""> 
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" floatLabel="always">
+        <mat-label>Enter your last name</mat-label>
+        <input matInput type="text" name="name" [(ngModel)]="user.lastname" class="example-right-align" placeholder=""> 
+      </mat-form-field>
       <button mat-button color="primary"  (click)="loginOrRegister()">Register</button>
     </ng-container>
 </ng-template>
