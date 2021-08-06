@@ -44,7 +44,7 @@ export class MessageService {
   }
 
 
-  sendNewMessage(formData: FormData): Observable<any> {
+  public sendNewMessage(formData: FormData): Observable<any> {
       return this.httpClient.post<any>(`http://localhost:8080/message/init`, formData, {
         reportProgress: true,
         observe: 'events'

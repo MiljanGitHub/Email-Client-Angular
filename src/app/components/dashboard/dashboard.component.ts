@@ -83,18 +83,6 @@ export class DashboardComponent implements OnInit {
       incomingType: ['']
     })
 
-          /*
-       public userId: Number,
-        public displayName: string,
-        public username: string,
-        public password: string,
-        public smtpAddress: string,
-        public smtpPort: Number,
-        public inServerAddress: string,
-        public inServerPort: string,
-        public inServerType: string
-      */
-
     //TODO -> extract data when sending new Message
     this.messageNewForm = this.fb.group({
       messageNewSubject: [''],
@@ -105,8 +93,6 @@ export class DashboardComponent implements OnInit {
   }
 
   submitForm() {
-
-    //console.log(this.newAccountForm.get('incomingType'))
     
     let accountData = new AccountData(
       -1,
@@ -143,7 +129,10 @@ export class DashboardComponent implements OnInit {
 
     //when Account is changed (bi-directional mapping from view-code works, so currentAccount is already selected)
     this.folders = [];
-    this.folders = this.folderService.fetchFolders(this.currentAccount.id);
+    this.folderService.fetchFolders(this.currentAccount.id).subscribe(data => {
+      this.folders = data;
+      console.log(this.folders)
+    })
 
     //if 'messages' are existing reset them to default
     if (this.messages.length > 0) this.messages = [];
@@ -202,7 +191,9 @@ export class DashboardComponent implements OnInit {
     if (this.selectedMessage != null) this.selectedMessage = null;
 
     //TODO make folder service request to delete Folder on Backend
-    this.folderService.deleteFolder(folderId);
+    this.folderService.deleteFolder(folderId).subscribe(data => {
+      
+    })
   };
 
   public onRowClick(selectedMessage: Message){

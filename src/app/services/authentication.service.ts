@@ -42,9 +42,7 @@ export class AuthenticationService {
     var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<any>(this.API + "/register", { username : username, password : password, firstName: firstname, lastName: lastname}, {headers})
     .pipe(map((res: any) => {
-
       return res;
-
 
     }), catchError(error => {
       console.log("register response: " + error);
