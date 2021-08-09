@@ -192,7 +192,7 @@ export class DashboardComponent implements OnInit {
 
     //TODO make folder service request to delete Folder on Backend
     this.folderService.deleteFolder(folderId).subscribe(data => {
-      
+      console.log(data + " " + "deleting folder" )
     })
   };
 

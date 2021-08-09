@@ -42,7 +42,7 @@ export class FolderService {
     var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
     //TODO -> real http request
 
-   return this.http.delete(this.API + "/delete/" + folderId, {headers})
+   return this.http.delete(this.API + "/delete/" + folderId, {responseType: 'text' })
     .pipe(map((res: any) => {
 
       return res;
@@ -50,7 +50,7 @@ export class FolderService {
     }), catchError(error => {
       
       if (error.status === 400) {
-        return Observable.throw('Illegal login');
+        return Observable.throw('Illegal');
       }
       else {
         return Observable.throw(error.json().error || 'Server error');
