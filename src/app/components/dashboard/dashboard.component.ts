@@ -167,7 +167,12 @@ export class DashboardComponent implements OnInit {
 
     if ((this.currentAccount != null && this.currentAccount != undefined)){
       //TODO -> real http request
-      this.messages = this.messageService.fetchMessages(this.currentFolder.id);
+     // this.messages = this.messageService.fetchMessages(this.currentFolder.id);
+     this.messageService.fetchMessages(this.currentFolder.id).subscribe(data => {
+       this.messages = data;
+     })
+
+     
     }
 
     //only for debuging purposes
@@ -231,7 +236,9 @@ export class DashboardComponent implements OnInit {
     this.selectedMessage = null;
 
     //TODO
-    this.messageService.deleteMessage(messageId);
+    this.messageService.deleteMessage(messageId).subscribe(data => {
+       console.log("Deleting message -> server response: " + data['error'] + " " + "; message: " + data['message'])
+    });
   }
 
   onClicDismiss(){

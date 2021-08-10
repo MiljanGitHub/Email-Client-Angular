@@ -1,7 +1,8 @@
 
-import { HttpClient, HttpEvent, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { IdRequest } from '../models/IdRequest';
 import { Message } from '../models/message.model';
 import { NewMessage } from '../models/new-message';
@@ -11,41 +12,83 @@ import { NewMessage } from '../models/new-message';
 })
 export class MessageService {
 
-  private readonly url = "http://localhost:8080/newMessage";
+  private readonly API = "http://localhost:8080/message";
 
   constructor(private httpClient: HttpClient) { }
 
 
-  public fetchMessages(folderId: Number) : Message[] {
+  public fetchMessages(folderId: Number) : Observable<Message[]> {
+
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
     //TODO get request for fetching messages
-    return [
 
-      {id: 2, subject: 'a',content: "some asfpafmspamfsp content...", from: "moj mejl @gmail.com", to: ["saljemPrvom@gmail.com", "saljemDrugom@gmail.com"], 
-      cc : ["saljemPrvom@gmail.com", "saljemDrugom@gmail.com"], bcc: ["saljemPrvom@gmail.com", "saljemDrugom@gmail.com"],
-      read: false, received: "1627311849526", sent: "1627311849526",
-      attachments: [{id: 1, url: "www.google.com", title: "some attach title1"}]},
-  
-      {id: 1, subject: 'bb',content: "some asfpafmspamfsp content...", from: "moj mejl @gmail.com", to: ["saljemPrvom@gmail.com", "saljemDrugom@gmail.com"], 
-      cc : ["saljemPrvom@gmail.com", "saljemDrugom@gmail.com"], bcc: ["saljemPrvom@gmail.com", "saljemDrugom@gmail.com"],
-      read: true, received: "1627311849526", sent: "1627311849526",
-      attachments: [{id: 1, url: "www.google.com", title: "some attach title1"}]}
+    return this.httpClient.get<Message>(this.API + '/fetch', { headers })
+    .pipe(map((res: any) => {
 
       
-    ];
+      return res;
+
+    }), catchError(error => {
+      if (error.status === 400) {
+        return Observable.throw('Illegal');
+      }
+      else {
+        return Observable.throw(error.json().error || 'Server error');
+      }
+    }));
+
   }
 
-  public setReadStatus(status: boolean, messageId: Number){
+  public setReadStatus(status: boolean, messageId: Number): Observable<any>{
     //TODO -> put request to set 'currentMessage' status
+    let params = new HttpParams();
+    params = params.append('status', 'true');
+
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    return this.httpClient.post(this.API + "/setStatus" + messageId, {headers}, {params: params})
+    .pipe(map((res: any) => {
+
+      return res;
+
+    }), catchError(error => {
+      
+      if (error.status === 400) {
+        return Observable.throw('Illegal');
+      }
+      else {
+        return Observable.throw(error.json().error || 'Server error');
+      }
+    
+    }));
   }
 
-  public deleteMessage(messageId: Number){
+  public deleteMessage(messageId: Number) : Observable<any>{
     //TODO -> delete request for deleting message on server
+
+    var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
+
+    return this.httpClient.delete(this.API + "/delete/" + messageId, {headers})
+    .pipe(map((res: any) => {
+
+      return res;
+
+    }), catchError(error => {
+      
+      if (error.status === 400) {
+        return Observable.throw('Illegal');
+      }
+      else {
+        return Observable.throw(error.json().error || 'Server error');
+      }
+    
+    }));
   }
 
 
   public sendNewMessage(formData: FormData): Observable<any> {
-      return this.httpClient.post<any>(`http://localhost:8080/message/init`, formData, {
+      return this.httpClient.post<any>(this.API + `/init`, formData, {
         reportProgress: true,
         observe: 'events'
       });
