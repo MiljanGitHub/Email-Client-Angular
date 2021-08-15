@@ -60,7 +60,24 @@ export class AccountService {
       }
     }));
   }
+  
+  public refreshAccounts() : Observable<any>{
 
+  //  var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'text/plain' });
 
+    return this.http.get(this.API + '/refresh', { responseType: 'text' })
+    .pipe(map((res: any) => {
+
+      return res;
+
+    }), catchError(error => {
+      if (error.status === 400) {
+        return Observable.throw('Illegal');
+      }
+      else {
+        return Observable.throw(error.json().error() || 'Server error');
+      }
+    }));
+  }
 
 }

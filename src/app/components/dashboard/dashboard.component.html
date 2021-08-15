@@ -12,6 +12,11 @@
         </mat-form-field>
         <!-- Select account dropdown ends here -->
 
+        <ng-container *ngIf="currentFolder" >
+            <mat-label>Currently selected folder: {{currentFolder.folderName}}</mat-label>
+        </ng-container>
+        
+
         <!-- Folders tree structure starts here -->
         <kendo-treeview
             id="idt"
@@ -31,6 +36,10 @@
         <button  mat-button color="primary" [disabled]="currentFolder == null || currentFolder == undefined" (click)="deleteCurrentlySelectedFolder()">Delete folder</button>
         <!-- Delete button for Folder ends here -->
 
+        <!-- Refresh button to download Messages for every Account of currently logged-in User starts here -->
+        <button  mat-button color="primary" [disabled]="accounts == null || accounts.length == 0" (click)="refreshAccounts()">Refresh accounts for new Messages</button>
+        <!-- Refresh button to download Messages for every Account of currently logged-in User end here -->
+        
         <!-- Form for Account creation starts here -->
         <div>
             <form [formGroup]="newAccountForm" (ngSubmit)="submitForm()" class="example-form">
@@ -56,7 +65,7 @@
 
                 <mat-form-field class="example-full-width" appearance="fill">
                     <mat-label>SMTP port</mat-label>
-                    <input type="number" formControlName="smtpPort" matInput placeholder="123" value="">
+                    <input type="number" formControlName="smtpPort" matInput placeholder="587" value="">
                 </mat-form-field>
 
                 <mat-form-field class="example-full-width" appearance="fill">
@@ -188,9 +197,9 @@
                     <mat-label>Content</mat-label>
                     <textarea readonly type="text" formControlName="messageViewContent" matInput value="selectedMessage.content"></textarea>
                 </mat-form-field>
-            
-                <mat-chip-list aria-label="Fish selection">
-                    <mat-chip *ngFor="let attachment of selectedMessage.attachments"><a [attr.href]="'//' + attachment.url" target="_blank">{{attachment.title}}</a></mat-chip>        
+            <!-- '://' + -->
+                <mat-chip-list aria-label="Fish selection"> 
+                    <mat-chip *ngFor="let attachment of selectedMessage.attachments"><a [attr.href]="attachment.url" target="_blank">{{attachment.title}}</a></mat-chip>        
                 </mat-chip-list>
             
             </form> 

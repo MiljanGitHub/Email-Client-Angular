@@ -93,7 +93,6 @@ export class DashboardComponent implements OnInit {
   }
 
   submitForm() {
-    
     let accountData = new AccountData(
       -1,
       this.newAccountForm.get('displayName').value,
@@ -114,6 +113,7 @@ export class DashboardComponent implements OnInit {
       if (data['error'] == false){
         let idAccount = data['id'];
         this.accounts.push(new Account(accountData.username, idAccount));
+        alert("Your emails and folders are being downloaded...")
       } else {
         alert("greska pri kreiranju Accounta")
       }
@@ -201,6 +201,12 @@ export class DashboardComponent implements OnInit {
     })
   };
 
+  public refreshAccounts(){
+    this.accountService.refreshAccounts().subscribe(data => {
+      alert(data);
+    })
+  }
+
   public onRowClick(selectedMessage: Message){
     //when row (i.e. Message) in the 'Messages' tab is clicked
     this.selectedMessage = selectedMessage;
@@ -208,8 +214,11 @@ export class DashboardComponent implements OnInit {
     if (this.currentAccount != null && this.currentFolder != null){
       //by opening 'selectedMessage' we set it as 'read' => 'true' on Backend
       this.selectedMessage.read = true; //set 'read' status as 'true' on the UI
-      this.messageService.setReadStatus(true,this.selectedMessage.id);
-
+      console.log("pre setReadStatus")
+      this.messageService.setReadStatus(true,this.selectedMessage.id).subscribe(data => {
+        console.log("Message has been read")
+      })
+      console.log("posle setReadStatus")
       //seting all 'readonly' values on the UI
       this.messageViewForm = this.fb.group({
         messageViewSubject: [this.selectedMessage.subject],
@@ -237,8 +246,9 @@ export class DashboardComponent implements OnInit {
 
     //TODO
     this.messageService.deleteMessage(messageId).subscribe(data => {
-       console.log("Deleting message -> server response: " + data['error'] + " " + "; message: " + data['message'])
-    });
+       console.log("Deleting message -> server response: error: " + data['error'] + " " + "; message: " + data['message'])
+       alert("Message deleted: " + data['message'])
+      });
   }
 
   onClicDismiss(){
@@ -326,30 +336,53 @@ export class DashboardComponent implements OnInit {
     //TODO
 
     var fd = new FormData();
-
+  
     for (const file of this.selectedFiles){
       fd.append('files', file, file.name);
     }
 
+    console.log(JSON.stringify({from : this.currentMessage.from, to : this.currentMessage.to, cc : this.currentMessage.cc, bcc: this.currentMessage.bcc, subject : this.messageNewForm.get('messageNewSubject').value, content : this.messageNewForm.get('messageNewContent').value}))
 
     fd.append("message", JSON.stringify({from : this.currentMessage.from, to : this.currentMessage.to, cc : this.currentMessage.cc, bcc: this.currentMessage.bcc, subject : this.messageNewForm.get('messageNewSubject').value, content : this.messageNewForm.get('messageNewContent').value}));
     
-    console.log("sending...")
-    //console.log({from : this.currentMessage.from, to : this.currentMessage.to, cc : this.currentMessage.cc, bcc: this.currentMessage.bcc, subject : this.currentMessage.subject, content : this.currentMessage.content})
-    this.currentMessage = new Message(-1, '', '', '', [], [], [], true, '', '', []); //defaul new Message
-    this.selectedFiles = [];
-    this.messageNewForm.get('messageNewSubject').setValue('');
-    this.messageNewForm.get('messageNewContent').setValue('');
+    if (this.selectedFiles.length > 0){
+      this.messageService.sendNewMessageWithAttachments(fd).subscribe(
+        response => {
+          //console.log(response);
+          if (!response['error']){
+            this.currentMessage = new Message(-1, '', '', '', [], [], [], true, '', '', []); //defaul new Message
+            this.selectedFiles = [];
+            this.messageNewForm.get('messageNewSubject').setValue('');
+            this.messageNewForm.get('messageNewContent').setValue('');
+          }else {
+            alert("Error while sending message!")
+          }
+  
+        },
+        (error: HttpErrorResponse) => {
+          console.log(error);
+        }
+      );
+    } else {
+      this.messageService.sendNewMessageWithoutAttachments(fd).subscribe(
+        response => {
+          if (!response['error']){
 
-    this.messageService.sendNewMessage(fd).subscribe(
-      event => {
-        console.log(event);
-        //this.resportProgress(event);
-      },
-      (error: HttpErrorResponse) => {
-        console.log(error);
-      }
-    );
+            this.currentMessage = new Message(-1, '', '', '', [], [], [], true, '', '', []); //defaul new Message
+            this.selectedFiles = [];
+            this.messageNewForm.get('messageNewSubject').setValue('');
+            this.messageNewForm.get('messageNewContent').setValue('');
+          } else {
+            alert("Error while sending message!")
+          }
+        },
+        (error: HttpErrorResponse) => {
+          console.log(error);
+        }
+      );
+    }
+
+    
   }
 
   incomingTypeChange(event){

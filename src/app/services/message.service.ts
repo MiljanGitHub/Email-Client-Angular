@@ -1,4 +1,5 @@
 
+import { S } from '@angular/cdk/keycodes';
 import { HttpClient, HttpEvent, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -12,7 +13,7 @@ import { NewMessage } from '../models/new-message';
 })
 export class MessageService {
 
-  private readonly API = "http://localhost:8080/message";
+  private readonly API = "http://localhost:8080/email_client/message";
 
   constructor(private httpClient: HttpClient) { }
 
@@ -23,7 +24,7 @@ export class MessageService {
 
     //TODO get request for fetching messages
 
-    return this.httpClient.get<Message>(this.API + '/fetch', { headers })
+    return this.httpClient.get(this.API + "/fetch/" + folderId, { headers })
     .pipe(map((res: any) => {
 
       
@@ -42,12 +43,13 @@ export class MessageService {
 
   public setReadStatus(status: boolean, messageId: Number): Observable<any>{
     //TODO -> put request to set 'currentMessage' status
-    let params = new HttpParams();
-    params = params.append('status', 'true');
+    //let params = new HttpParams()
+    //.set('status', 'true')
+    //params.append('status', 'true');
 
     var headers: HttpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-    return this.httpClient.post(this.API + "/setStatus" + messageId, {headers}, {params: params})
+   // console.log(this.API + "/setStatus/" + messageId)
+    return this.httpClient.put<any>(this.API + "/setStatus", { status : status , messageId : messageId}, {headers})
     .pipe(map((res: any) => {
 
       return res;
@@ -87,11 +89,18 @@ export class MessageService {
   }
 
 
-  public sendNewMessage(formData: FormData): Observable<any> {
-      return this.httpClient.post<any>(this.API + `/init`, formData, {
+  public sendNewMessageWithAttachments(formData: FormData): Observable<any> {
+      return this.httpClient.post<any>(this.API + `/initWithAttachments`, formData, {
         reportProgress: true,
         observe: 'events'
       });
-    }
+  }
+
+  public sendNewMessageWithoutAttachments(formData: FormData): Observable<any> {
+    return this.httpClient.post<any>(this.API + `/initWithoutAttachments`, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+}
     
 }
